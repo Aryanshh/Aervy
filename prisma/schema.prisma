@@ -1,0 +1,286 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADVERTISER
+  OPS_REVIEWER
+  ADMIN
+}
+
+enum CampaignStatus {
+  DRAFT
+  PENDING_PAYMENT
+  SUBMITTED
+  UNDER_REVIEW
+  CHANGES_REQUESTED
+  REJECTED
+  APPROVED_FOR_SCHEDULING
+  SCHEDULED
+  READY_FOR_OPERATIONS
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  ON_HOLD
+  FAILED
+}
+
+enum PaymentStatus {
+  CREATED
+  PAID
+  FAILED
+  REFUND_PENDING
+  REFUNDED
+  PARTIALLY_REFUNDED
+  EXPIRED
+}
+
+model User {
+  id            String               @id @default(cuid())
+  email         String               @unique
+  name          String
+  passwordHash  String?
+  role          Role                 @default(ADVERTISER)
+  authId        String?              @unique
+  isActive      Boolean              @default(true)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  memberships   OrganizationMember[]
+  campaigns     Campaign[]           @relation("CreatedCampaigns")
+  decisions     ReviewDecision[]
+  notifications Notification[]
+}
+
+model Organization {
+  id           String               @id @default(cuid())
+  name         String
+  contactEmail String
+  gstin        String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  members      OrganizationMember[]
+  campaigns    Campaign[]
+}
+
+model OrganizationMember {
+  id             String       @id @default(cuid())
+  organizationId String
+  userId         String
+  role           String       @default("MEMBER")
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+}
+
+model Zone {
+  id               String     @id @default(cuid())
+  name             String
+  description      String?
+  geojson          Json
+  centerLat        Float
+  centerLng        Float
+  timezone         String     @default("Asia/Kolkata")
+  ratePerHourPaise Int
+  capacity         Int        @default(1)
+  isActive         Boolean    @default(true)
+  notes            String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  campaigns        Campaign[]
+  slotHolds        SlotHold[]
+}
+
+model Campaign {
+  id             String         @id @default(cuid())
+  organizationId String
+  createdById    String
+  name           String
+  brand          String
+  objective      String
+  description    String?
+  status         CampaignStatus @default(DRAFT)
+  zoneId         String?
+  startAt        DateTime?
+  endAt          DateTime?
+  flexibility    String?
+  audienceNotes  String?
+  ctaText        String?
+  destinationUrl String?
+  acknowledgedAt DateTime?
+  version        Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User             @relation("CreatedCampaigns", fields: [createdById], references: [id])
+  zone         Zone?            @relation(fields: [zoneId], references: [id])
+  assets       CreativeAsset[]
+  quotes       Quote[]
+  slotHolds    SlotHold[]
+  payments     Payment[]
+  statusEvents StatusEvent[]
+  decisions    ReviewDecision[]
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([zoneId])
+  @@index([startAt])
+}
+
+model CreativeAsset {
+  id               String   @id @default(cuid())
+  campaignId       String
+  storageKey       String   @unique
+  originalName     String
+  mimeType         String
+  sizeBytes        Int
+  width            Int?
+  height           Int?
+  durationSec      Float?
+  title            String?
+  altText          String?
+  validationStatus String   @default("PENDING")
+  validationNote   String?
+  createdAt        DateTime @default(now())
+  campaign         Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+}
+
+model Quote {
+  id            String    @id @default(cuid())
+  campaignId    String
+  zoneRatePaise Int
+  billableHours Int
+  subtotalPaise Int
+  multiplierBps Int
+  discountPaise Int       @default(0)
+  gstBps        Int       @default(1800)
+  gstPaise      Int
+  totalPaise    Int
+  currency      String    @default("INR")
+  inputsHash    String
+  createdAt     DateTime  @default(now())
+  campaign      Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  payments      Payment[]
+
+  @@index([campaignId])
+}
+
+model SlotHold {
+  id         String   @id @default(cuid())
+  campaignId String
+  zoneId     String
+  startAt    DateTime
+  endAt      DateTime
+  expiresAt  DateTime
+  status     String   @default("ACTIVE")
+  createdAt  DateTime @default(now())
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  zone       Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+
+  @@index([zoneId, startAt, endAt])
+  @@index([campaignId])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  campaignId        String
+  quoteId           String
+  provider          String        @default("razorpay")
+  providerOrderId   String        @unique
+  providerPaymentId String?       @unique
+  amountPaise       Int
+  currency          String        @default("INR")
+  status            PaymentStatus @default(CREATED)
+  failureReason     String?
+  paidAt            DateTime?
+  createdAt         DateTime      @default(now())
+  campaign          Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  quote             Quote         @relation(fields: [quoteId], references: [id])
+  refunds           Refund[]
+
+  @@index([campaignId])
+}
+
+model Refund {
+  id               String   @id @default(cuid())
+  paymentId        String
+  providerRefundId String?  @unique
+  amountPaise      Int
+  reason           String
+  status           String   @default("PENDING")
+  createdAt        DateTime @default(now())
+  payment          Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+}
+
+model WebhookEvent {
+  id          String    @id
+  provider    String
+  type        String
+  receivedAt  DateTime  @default(now())
+  processedAt DateTime?
+}
+
+model StatusEvent {
+  id         String          @id @default(cuid())
+  campaignId String
+  fromStatus CampaignStatus?
+  toStatus   CampaignStatus
+  actorId    String?
+  actorType  String
+  reason     String?
+  createdAt  DateTime        @default(now())
+  campaign   Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+}
+
+model ReviewDecision {
+  id          String   @id @default(cuid())
+  campaignId  String
+  reviewerId  String
+  decision    String
+  reason      String
+  constraints String?
+  createdAt   DateTime @default(now())
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  reviewer    User     @relation(fields: [reviewerId], references: [id])
+
+  @@index([campaignId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
