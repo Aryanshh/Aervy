@@ -22,6 +22,7 @@ export interface ZoneMapItem {
   centerLat: number;
   centerLng: number;
   ratePerHourPaise: number;
+  capacity: number;
   geojson: unknown;
   isActive: boolean;
   notes: string | null;
