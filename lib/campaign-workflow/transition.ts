@@ -13,6 +13,7 @@ import {
   MissingReasonError,
   UnauthorizedTransitionError,
 } from "./errors";
+import { processCampaignRefund } from "@/lib/payments/refund";
 
 export interface TransitionActor {
   type: "USER" | "SYSTEM" | "WEBHOOK";
@@ -160,9 +161,28 @@ export async function transition(
     };
   };
 
+  let result: TransitionResult;
   if (externalTx) {
-    return executeInTransaction(externalTx);
+    result = await executeInTransaction(externalTx);
+  } else {
+    result = await db.$transaction(executeInTransaction);
   }
 
-  return db.$transaction(executeInTransaction);
+  // If campaign transitioned to REJECTED, automatically initiate refund for any paid payments
+  if (params.toStatus === CampaignStatus.REJECTED && !externalTx) {
+    try {
+      await processCampaignRefund({
+        campaignId: params.campaignId,
+        reason: params.reason ?? "Campaign rejected by operations reviewer",
+        actorId: params.actor.userId,
+      });
+    } catch (refundErr) {
+      console.error(
+        `Automated refund processing failed for campaign ${params.campaignId}:`,
+        refundErr
+      );
+    }
+  }
+
+  return result;
 }
