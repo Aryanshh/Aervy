@@ -925,7 +925,7 @@ describe("Stage 5: Payment Gateway, Checkout, Webhooks & Refunds", () => {
 
       // Verify Notification sent to advertiser
       const notification = dbState.notifications.find(
-        (n) => n.userId === testUserId
+        (n) => n.userId === testUserId && (n.title as string).includes("Refund")
       );
       expect(notification).toBeDefined();
       expect((notification?.title as string) || "").toContain("Payment Refund Initiated");
