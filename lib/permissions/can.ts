@@ -143,8 +143,16 @@ export function can(
         return resource.status === "DRAFT";
       }
 
-      if (action === "campaign:pay" || action === "campaign:submit") {
+      if (action === "campaign:pay") {
         return resource.status === "DRAFT" || resource.status === "PENDING_PAYMENT";
+      }
+
+      if (action === "campaign:submit") {
+        return (
+          resource.status === "DRAFT" ||
+          resource.status === "PENDING_PAYMENT" ||
+          resource.status === "CHANGES_REQUESTED"
+        );
       }
 
       if (action === "campaign:cancel") {
