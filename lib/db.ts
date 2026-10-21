@@ -1,15 +1,31 @@
 import { PrismaClient } from "@prisma/client";
+import { createMockDatabaseClient } from "./mock-db";
 
-const globalForPrisma = globalThis as unknown as {
+const globalForDb = globalThis as unknown as {
   prisma: PrismaClient | undefined;
+  mockDb: ReturnType<typeof createMockDatabaseClient> | undefined;
 };
 
-export const db =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-  });
+// Default to in-memory pilot database if DEMO_MODE=true or DATABASE_URL is not set / contains placeholder
+const useDemoMock =
+  process.env.DEMO_MODE === "true" ||
+  !process.env.DATABASE_URL ||
+  process.env.DATABASE_URL.includes("placeholder");
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = db;
+let dbInstance: PrismaClient;
+
+if (useDemoMock) {
+  if (!globalForDb.mockDb) {
+    globalForDb.mockDb = createMockDatabaseClient();
+  }
+  dbInstance = globalForDb.mockDb as unknown as PrismaClient;
+} else {
+  if (!globalForDb.prisma) {
+    globalForDb.prisma = new PrismaClient({
+      log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+    });
+  }
+  dbInstance = globalForDb.prisma;
 }
+
+export const db = dbInstance;
