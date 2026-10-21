@@ -36,7 +36,7 @@ export function StepCreative({ initialData, onBack, onNext }: StepCreativeProps)
   const [sizeBytes, setSizeBytes] = useState<number>(initialData.sizeBytes ?? 0);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [title, setTitle] = useState(initialData.title ?? "");
-  const [altText, setAltText] = useState(initialData.altText ?? "");
+  const [altText] = useState(initialData.altText ?? "");
   const [ctaText, setCtaText] = useState(initialData.ctaText ?? "");
   const [destinationUrl, setDestinationUrl] = useState(initialData.destinationUrl ?? "");
 
@@ -59,62 +59,64 @@ export function StepCreative({ initialData, onBack, onNext }: StepCreativeProps)
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           filename: selected.name,
-          mimeType: selected.type,
+          contentType: selected.type,
           sizeBytes: selected.size,
         }),
       });
 
       if (!presignRes.ok) {
-        const err = await presignRes.json();
-        throw new Error(err.error || "Presign request failed");
+        const errorData = await presignRes.json();
+        throw new Error(errorData.error || "Failed to initialize upload");
       }
 
-      const { storageKey: quarantineKey, uploadUrl } = await presignRes.json();
+      const { uploadUrl, fileKey, directUploadFallback } = await presignRes.json();
 
-      // 2. Direct upload to quarantine with magic byte verification
-      const formData = new FormData();
-      formData.append("file", selected);
+      if (directUploadFallback) {
+        // Fallback: direct multipart upload
+        const formData = new FormData();
+        formData.append("file", selected);
+        const directRes = await fetch("/api/uploads/direct", {
+          method: "POST",
+          body: formData,
+        });
 
-      const directRes = await fetch(uploadUrl, {
-        method: "POST",
-        body: formData,
-      });
+        if (!directRes.ok) {
+          const directError = await directRes.json();
+          throw new Error(directError.error || "Direct upload failed");
+        }
 
-      if (!directRes.ok) {
-        const err = await directRes.json();
-        throw new Error(err.error || "File upload failed");
+        const directData = await directRes.json();
+        setStorageKey(directData.storageKey);
+        setOriginalName(selected.name);
+        setMimeType(selected.type);
+        setSizeBytes(selected.size);
+      } else {
+        // Direct PUT to upload URL (S3 / mock)
+        const putRes = await fetch(uploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": selected.type,
+          },
+          body: selected,
+        });
+
+        if (!putRes.ok) {
+          throw new Error("Failed to store creative asset");
+        }
+
+        setStorageKey(fileKey);
+        setOriginalName(selected.name);
+        setMimeType(selected.type);
+        setSizeBytes(selected.size);
       }
 
-      await directRes.json();
-
-      // 3. Finalize upload
-      const finalizeRes = await fetch("/api/uploads/finalize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          storageKey: quarantineKey,
-          originalName: selected.name,
-          title,
-          altText,
-        }),
-      });
-
-      if (!finalizeRes.ok) {
-        const err = await finalizeRes.json();
-        throw new Error(err.error || "Failed to finalize upload");
+      if (selected.type.startsWith("image/")) {
+        setPreviewUrl(URL.createObjectURL(selected));
+      } else {
+        setPreviewUrl("");
       }
-
-      const finalizeResult = await finalizeRes.json();
-
-      setStorageKey(finalizeResult.storageKey);
-      setOriginalName(selected.name);
-      setMimeType(finalizeResult.mimeType);
-      setSizeBytes(finalizeResult.sizeBytes);
-      setPreviewUrl(finalizeResult.publicUrl || URL.createObjectURL(selected));
     } catch (err: unknown) {
       setUploadError(err instanceof Error ? err.message : "Upload failed");
-      setFile(null);
-      setStorageKey("");
     } finally {
       setIsUploading(false);
     }
@@ -129,10 +131,10 @@ export function StepCreative({ initialData, onBack, onNext }: StepCreativeProps)
       originalName,
       mimeType,
       sizeBytes,
-      title,
-      altText,
-      ctaText,
-      destinationUrl,
+      title: title || undefined,
+      altText: altText || undefined,
+      ctaText: ctaText || undefined,
+      destinationUrl: destinationUrl || undefined,
     });
 
     if (!result.success) {
@@ -146,179 +148,163 @@ export function StepCreative({ initialData, onBack, onNext }: StepCreativeProps)
       return;
     }
 
-    onNext(result.data as {
-      storageKey: string;
-      originalName: string;
-      mimeType: "image/jpeg" | "image/png" | "image/webp" | "video/mp4";
-      sizeBytes: number;
-      title?: string;
-      altText?: string;
-      ctaText?: string;
-      destinationUrl?: string;
-    });
+    onNext(result.data);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 font-mono text-xs">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Step 2: Creative Upload & Display Content</h2>
-        <p className="text-sm text-slate-500 mt-1">
-          Upload banner media and configure visual presentation metadata.
+        <h2 className="text-xl font-heading font-bold text-[#ebebeb]">Step 2: Creative Upload & Formatting</h2>
+        <p className="text-xs text-[#ebebeb]/50 mt-1">
+          Upload media assets for high-luminance aerial drone displays.
         </p>
       </div>
 
-      {/* Upload Box */}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">
-          Creative Banner Asset <span className="text-red-500">*</span>
-        </label>
-        <div className="relative rounded-lg border-2 border-dashed border-slate-300 p-6 text-center hover:border-blue-400 transition-colors bg-white">
-          <input
-            id="file-upload"
-            type="file"
-            accept="image/jpeg,image/png,image/webp,video/mp4"
-            onChange={handleFileChange}
-            disabled={isUploading}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-          />
-
-          <div className="flex flex-col items-center">
-            {isUploading ? (
-              <div className="flex flex-col items-center space-y-2 text-blue-600">
-                <Loader2 className="h-8 w-8 animate-spin" />
-                <span className="text-sm font-medium">Verifying format & magic bytes...</span>
-              </div>
-            ) : storageKey ? (
-              <div className="flex flex-col items-center space-y-2 text-emerald-600">
-                <CheckCircle2 className="h-8 w-8" />
-                <span className="text-sm font-semibold">{originalName}</span>
-                <span className="text-xs text-slate-500">
-                  Verified format: {mimeType} • {(sizeBytes / (1024 * 1024)).toFixed(2)} MB
-                </span>
-                <span className="text-xs text-blue-600 underline">Click to change asset</span>
-              </div>
-            ) : (
-              <>
-                <UploadCloud className="h-10 w-10 text-slate-400" />
-                <p className="mt-2 text-sm text-slate-600">
-                  <span className="font-semibold text-blue-600">Click to upload</span> or drag and drop
-                </p>
-                <p className="mt-1 text-xs text-slate-400">
-                  JPG, PNG, WebP or short MP4 (max 25 MB). SVG is rejected for safety.
-                </p>
-              </>
-            )}
+      <div className="space-y-4">
+        {/* Upload Zone */}
+        <div>
+          <label className="block text-xs uppercase tracking-wider text-[#ebebeb]/70 mb-1.5">
+            Asset File (JPG, PNG, WEBP, or MP4) <span className="text-[#ccff00]">*</span>
+          </label>
+          <div className="flex justify-center rounded-2xl border-2 border-dashed border-white/20 bg-black/40 px-6 pt-5 pb-6 hover:border-[#ccff00]/40 transition-colors">
+            <div className="space-y-2 text-center">
+              {isUploading ? (
+                <div className="flex flex-col items-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-[#ccff00]" />
+                  <p className="mt-2 text-xs text-[#ccff00]">Streaming & validating asset...</p>
+                </div>
+              ) : storageKey ? (
+                <div className="flex flex-col items-center">
+                  <CheckCircle2 className="h-8 w-8 text-[#10b981]" />
+                  <p className="mt-1 text-xs font-bold text-[#10b981]">Asset Uploaded & Verified</p>
+                  <p className="text-[11px] text-[#ebebeb]/60">{originalName}</p>
+                  <label
+                    htmlFor="file-upload"
+                    className="mt-2 cursor-pointer text-xs font-bold text-[#ccff00] hover:underline"
+                  >
+                    Replace asset
+                  </label>
+                </div>
+              ) : (
+                <>
+                  <UploadCloud className="mx-auto h-10 w-10 text-white/30" />
+                  <div className="flex text-xs text-[#ebebeb]/60 justify-center">
+                    <label
+                      htmlFor="file-upload"
+                      className="relative cursor-pointer rounded-md font-bold text-[#ccff00] hover:underline"
+                    >
+                      <span>Upload creative media</span>
+                      <input
+                        id="file-upload"
+                        name="file-upload"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,video/mp4"
+                        className="sr-only"
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                    <p className="pl-1 text-[#ebebeb]/40">or drag and drop</p>
+                  </div>
+                  <p className="text-[10px] text-[#ebebeb]/40">
+                    Max size: 50MB. Recommended resolution: 1920×1080 (16:9).
+                  </p>
+                </>
+              )}
+            </div>
           </div>
+          {uploadError && <p className="mt-1 text-xs text-red-400">{uploadError}</p>}
+          {errors.storageKey && (
+            <p className="mt-1 text-xs text-red-400">Please upload a valid creative asset to proceed.</p>
+          )}
         </div>
 
-        {uploadError && (
-          <div className="mt-2 flex items-center text-xs text-red-600">
-            <AlertCircle className="mr-1.5 h-4 w-4 flex-shrink-0" />
-            <span>{uploadError}</span>
+        {/* Media Preview Box */}
+        {previewUrl && (
+          <div className="rounded-2xl border border-white/10 bg-black/60 p-4">
+            <span className="text-[10px] uppercase tracking-wider text-[#ebebeb]/50 block mb-2">
+              Optical Display Preview
+            </span>
+            <div className="aspect-video w-full overflow-hidden rounded-xl bg-black flex items-center justify-center border border-white/10">
+              <img src={previewUrl} alt="Preview" className="h-full w-full object-contain" />
+            </div>
           </div>
         )}
 
-        {errors.storageKey && <p className="mt-1 text-xs text-red-600">{errors.storageKey}</p>}
-      </div>
-
-      {/* Preview Section */}
-      {previewUrl && (
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <p className="text-xs font-semibold uppercase text-slate-500 mb-2">Creative Preview</p>
-          <div className="max-h-48 flex items-center justify-center overflow-hidden rounded bg-black">
-            {mimeType.startsWith("video/") ? (
-              <video src={previewUrl} controls className="max-h-48 max-w-full" />
-            ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={previewUrl} alt="Banner Preview" className="max-h-48 object-contain" />
-            )}
+        {/* Operational Safety Notice */}
+        <div className="rounded-2xl border border-[#ccff00]/20 bg-[#ccff00]/10 p-4 text-[11px] text-[#ccff00]">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold uppercase tracking-wider">Aerial Media Compliance Standard:</p>
+              <p className="mt-0.5 text-[#ebebeb]/80 leading-relaxed">
+                Flashing patterns faster than 3Hz and strobe transitions are strictly prohibited by DGCA public safety regulations.
+              </p>
+            </div>
           </div>
         </div>
-      )}
 
-      {/* Title & Alt Text */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {/* Visual Title */}
         <div>
-          <label htmlFor="creative-title" className="block text-sm font-medium text-slate-700">
-            Banner Title <span className="text-xs text-slate-400">(optional)</span>
+          <label htmlFor="title" className="block text-xs uppercase tracking-wider text-[#ebebeb]/70 mb-1.5">
+            Asset Headline / Title <span className="text-xs text-[#ebebeb]/40">(optional)</span>
           </label>
           <input
-            id="creative-title"
+            id="title"
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Headline displayed on summary"
-            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="e.g. Acme Diwali Mega Sale 2026"
+            className="block w-full rounded-xl border border-white/10 bg-black/50 px-3.5 py-2.5 text-xs text-[#ebebeb] placeholder-white/30 focus:border-[#ccff00] focus:outline-none transition-colors"
           />
         </div>
 
-        <div>
-          <label htmlFor="creative-alt" className="block text-sm font-medium text-slate-700">
-            Accessibility Alt Text <span className="text-xs text-slate-400">(optional)</span>
-          </label>
-          <input
-            id="creative-alt"
-            type="text"
-            value={altText}
-            onChange={(e) => setAltText(e.target.value)}
-            placeholder="Visual description for accessibility"
-            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-      </div>
+        {/* Call to Action */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="ctaText" className="block text-xs uppercase tracking-wider text-[#ebebeb]/70 mb-1.5">
+              Call to Action Pill <span className="text-xs text-[#ebebeb]/40">(optional)</span>
+            </label>
+            <input
+              id="ctaText"
+              type="text"
+              value={ctaText}
+              onChange={(e) => setCtaText(e.target.value)}
+              placeholder="e.g. Scan QR Code Below"
+              className="block w-full rounded-xl border border-white/10 bg-black/50 px-3.5 py-2.5 text-xs text-[#ebebeb] placeholder-white/30 focus:border-[#ccff00] focus:outline-none transition-colors"
+            />
+          </div>
 
-      {/* CTA & Destination URL */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div>
-          <label htmlFor="creative-cta" className="block text-sm font-medium text-slate-700">
-            Call to Action (CTA) <span className="text-xs text-slate-400">(optional)</span>
-          </label>
-          <input
-            id="creative-cta"
-            type="text"
-            value={ctaText}
-            onChange={(e) => setCtaText(e.target.value)}
-            placeholder="e.g. Scan QR Code / Visit Website"
-            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="creative-url" className="block text-sm font-medium text-slate-700">
-            Destination URL <span className="text-xs text-slate-400">(optional)</span>
-          </label>
-          <input
-            id="creative-url"
-            type="url"
-            value={destinationUrl}
-            onChange={(e) => setDestinationUrl(e.target.value)}
-            placeholder="https://yourbrand.com/landing"
-            className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.destinationUrl ? "border-red-500 bg-red-50" : "border-slate-300"
-            }`}
-          />
-          {errors.destinationUrl && (
-            <p className="mt-1 text-xs text-red-600">{errors.destinationUrl}</p>
-          )}
+          <div>
+            <label htmlFor="destinationUrl" className="block text-xs uppercase tracking-wider text-[#ebebeb]/70 mb-1.5">
+              QR Destination URL <span className="text-xs text-[#ebebeb]/40">(optional)</span>
+            </label>
+            <input
+              id="destinationUrl"
+              type="url"
+              value={destinationUrl}
+              onChange={(e) => setDestinationUrl(e.target.value)}
+              placeholder="https://acmebrands.in/festival"
+              className="block w-full rounded-xl border border-white/10 bg-black/50 px-3.5 py-2.5 text-xs text-[#ebebeb] placeholder-white/30 focus:border-[#ccff00] focus:outline-none transition-colors"
+            />
+          </div>
         </div>
       </div>
 
-      <div className="flex justify-between pt-4 border-t border-slate-200">
+      <div className="flex items-center justify-between pt-4 border-t border-white/10">
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+          className="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-5 py-2 text-xs font-bold text-[#ebebeb]/70 hover:text-white transition-colors"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back: Basics
+          <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
+          Back
         </button>
-
         <button
           type="submit"
           disabled={!storageKey || isUploading}
-          className="inline-flex items-center rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center rounded-full bg-[#ccff00] px-6 py-2.5 text-xs font-bold text-black hover:bg-white transition-all shadow-[0_0_20px_rgba(204,255,0,0.25)] disabled:opacity-40"
         >
-          Next: Choose Location
+          Next: Flight Zone Selection
           <ArrowRight className="ml-2 h-4 w-4" />
         </button>
       </div>

@@ -29,29 +29,31 @@ export function StepDetails({ initialData, onBack, onNext }: StepDetailsProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Step 5: Audience Context & Notes</h2>
-        <p className="text-sm text-slate-500 mt-1">
+        <h2 className="text-xl sm:text-2xl font-heading font-bold text-[#ebebeb] tracking-tight">
+          Step 5: Audience Context & Notes
+        </h2>
+        <p className="text-sm text-[#ebebeb]/60 mt-1">
           Specify contextual audience relevance to assist Operations in evaluating deployment timing.
         </p>
       </div>
 
       {/* Privacy Notice Banner */}
-      <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-xs text-blue-900">
+      <div className="rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-[16px] p-5 text-xs text-[#ebebeb]/80">
         <div className="flex items-center space-x-2">
-          <ShieldAlert className="h-4 w-4 text-blue-600 flex-shrink-0" />
-          <span className="font-semibold">Privacy By Design:</span>
+          <ShieldAlert className="h-4 w-4 text-[#ccff00] flex-shrink-0" />
+          <span className="font-mono uppercase tracking-wider text-[#ccff00] font-bold">Privacy By Design:</span>
         </div>
-        <p className="mt-1">
+        <p className="mt-2 text-xs leading-relaxed text-[#ebebeb]/70">
           Aervy strictly respects public privacy. Targeting is aggregate and location-contextual only.
           We never deploy individual biometric tracking, facial recognition, or personal surveillance.
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         {/* Audience Description */}
-        <div>
-          <label htmlFor="audience-notes" className="block text-sm font-medium text-slate-700">
-            Target Audience Context <span className="text-xs text-slate-400">(optional)</span>
+        <div className="space-y-2">
+          <label htmlFor="audience-notes" className="block font-mono text-xs uppercase tracking-wider text-[#ebebeb]/70">
+            Target Audience Context <span className="text-[10px] text-[#ebebeb]/40 lowercase">(optional)</span>
           </label>
           <textarea
             id="audience-notes"
@@ -59,14 +61,14 @@ export function StepDetails({ initialData, onBack, onNext }: StepDetailsProps) {
             value={audienceNotes}
             onChange={(e) => setAudienceNotes(e.target.value)}
             placeholder="e.g. Technology expo attendees, high-footfall evening commuters, festival participants."
-            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-[#ebebeb] placeholder-[#ebebeb]/30 transition-all focus:border-[#ccff00] focus:outline-none focus:ring-1 focus:ring-[#ccff00]"
           />
         </div>
 
         {/* Operational Notes */}
-        <div>
-          <label htmlFor="op-notes" className="block text-sm font-medium text-slate-700">
-            Notes for Operations Reviewer <span className="text-xs text-slate-400">(optional)</span>
+        <div className="space-y-2">
+          <label htmlFor="op-notes" className="block font-mono text-xs uppercase tracking-wider text-[#ebebeb]/70">
+            Notes for Operations Reviewer <span className="text-[10px] text-[#ebebeb]/40 lowercase">(optional)</span>
           </label>
           <textarea
             id="op-notes"
@@ -74,16 +76,16 @@ export function StepDetails({ initialData, onBack, onNext }: StepDetailsProps) {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Special instructions or context regarding associated outdoor events or permits."
-            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-[#ebebeb] placeholder-[#ebebeb]/30 transition-all focus:border-[#ccff00] focus:outline-none focus:ring-1 focus:ring-[#ccff00]"
           />
         </div>
       </div>
 
-      <div className="flex justify-between pt-4 border-t border-slate-200">
+      <div className="flex justify-between items-center pt-6 border-t border-white/10">
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+          className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-5 py-2.5 font-mono text-xs uppercase tracking-wider font-semibold text-[#ebebeb] hover:bg-white/10 transition-colors"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back: Schedule
@@ -91,7 +93,7 @@ export function StepDetails({ initialData, onBack, onNext }: StepDetailsProps) {
 
         <button
           type="submit"
-          className="inline-flex items-center rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
+          className="inline-flex items-center rounded-full bg-[#ccff00] px-6 py-2.5 font-mono text-xs uppercase tracking-wider font-bold text-black hover:bg-white transition-all shadow-[0_0_20px_rgba(204,255,0,0.25)]"
         >
           Next: Review & Pricing Quote
           <ArrowRight className="ml-2 h-4 w-4" />

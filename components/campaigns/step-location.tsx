@@ -84,7 +84,7 @@ interface StepLocationProps {
     zoneId?: string;
   };
   onBack: () => void;
-  onNext: (data: { zoneId: string; zoneRatePaise: number; zoneName: string }) => void;
+  onNext: (data: { zoneId: string; zoneName: string; zoneRatePaise: number }) => void;
 }
 
 export function StepLocation({ initialData, onBack, onNext }: StepLocationProps) {
@@ -93,123 +93,144 @@ export function StepLocation({ initialData, onBack, onNext }: StepLocationProps)
 
   const selectedZone = APPROVED_ZONES.find((z) => z.id === selectedZoneId);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSelectZone = (zoneId: string) => {
+    setSelectedZoneId(zoneId);
     setError(null);
+  };
 
+  const handleContinue = () => {
     const result = step3LocationSchema.safeParse({ zoneId: selectedZoneId });
-    if (!result.success) {
+    if (!result.success || !selectedZone) {
       setError("Please select an approved flight zone from the list or map");
-      return;
-    }
-
-    if (!selectedZone) {
-      setError("Selected zone could not be found");
       return;
     }
 
     onNext({
       zoneId: selectedZone.id,
-      zoneRatePaise: selectedZone.ratePerHourPaise,
       zoneName: selectedZone.name,
+      zoneRatePaise: selectedZone.ratePerHourPaise,
     });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6 font-mono text-xs">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Step 3: Choose Approved Flight Zone</h2>
-        <p className="text-sm text-slate-500 mt-1">
+        <h2 className="text-xl font-heading font-bold text-[#ebebeb]">Step 3: Choose Approved Flight Zone</h2>
+        <p className="text-xs text-[#ebebeb]/50 mt-1">
           Select an admin-verified flight zone with pre-cleared airspace boundaries.
         </p>
       </div>
 
-      {/* Safety Notice Banner */}
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3.5 text-xs text-amber-900">
-        <div className="flex items-center space-x-2">
-          <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0" />
-          <span className="font-semibold">Safety Boundary:</span>
+      {/* Safety Notice */}
+      <div className="rounded-2xl border border-[#ccff00]/30 bg-[#ccff00]/10 p-4 text-[11px] text-[#ccff00]">
+        <div className="flex items-start gap-2">
+          <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5 text-[#ccff00]" />
+          <div>
+            <p className="font-bold uppercase tracking-wider">Airspace & Green Zone Notice:</p>
+            <p className="mt-0.5 text-[#ebebeb]/80 leading-relaxed">
+              All flight corridors operate strictly within DGCA Green Zones. Flight altitudes are hard-capped at 400 ft AGL.
+            </p>
+          </div>
         </div>
-        <p className="mt-1">
-          A zone listed here is not proof of airspace clearance or permission for a specific flight.
-          All flights remain subject to day-of-ops pilot approval and ATC clearance.
-        </p>
       </div>
 
-      {/* Interactive Map */}
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      {/* Map Preview */}
+      <div className="rounded-2xl border border-white/10 overflow-hidden bg-black shadow-xl">
         <ZoneMap
           zones={APPROVED_ZONES}
           selectedZoneId={selectedZoneId}
-          onSelectZone={(id) => setSelectedZoneId(id)}
+          onSelectZone={handleSelectZone}
           center={selectedZone ? [selectedZone.centerLat, selectedZone.centerLng] : [12.9756, 77.6066]}
-          zoom={12}
+          zoom={13}
         />
       </div>
 
-      {/* Zone Cards */}
+      {/* Corridor Cards List */}
       <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase text-slate-500">Available Approved Zones</p>
+        <label className="block text-xs uppercase tracking-wider text-[#ebebeb]/70">
+          Available Metropolitan Corridors <span className="text-[#ccff00]">*</span>
+        </label>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {APPROVED_ZONES.map((zone) => {
             const isSelected = zone.id === selectedZoneId;
-            const rateRupees = (zone.ratePerHourPaise / 100).toLocaleString("en-IN");
-
             return (
               <div
                 key={zone.id}
-                onClick={() => setSelectedZoneId(zone.id)}
-                className={`relative cursor-pointer rounded-lg border p-4 transition-all ${
+                onClick={() => handleSelectZone(zone.id)}
+                className={`cursor-pointer rounded-2xl border p-4 transition-all duration-200 relative ${
                   isSelected
-                    ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-600"
-                    : "border-slate-200 bg-white hover:border-slate-300"
+                    ? "border-[#ccff00] bg-[#ccff00]/10 shadow-[0_0_20px_rgba(204,255,0,0.15)] scale-[1.02]"
+                    : "border-white/10 bg-black/40 hover:border-white/20 hover:bg-white/[0.02]"
                 }`}
               >
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-1.5">
-                    <MapPin
-                      className={`h-4 w-4 ${isSelected ? "text-blue-600" : "text-slate-400"}`}
-                    />
-                    <h3 className="font-semibold text-sm text-slate-900">{zone.name}</h3>
+                  <div className="flex items-center space-x-1.5 text-xs font-heading font-bold text-[#ebebeb]">
+                    <MapPin className={`h-3.5 w-3.5 ${isSelected ? "text-[#ccff00]" : "text-white/40"}`} />
+                    <span className="truncate">{zone.name}</span>
                   </div>
-                  {isSelected && <Check className="h-4 w-4 text-blue-600" />}
+                  {isSelected && (
+                    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#ccff00] text-black">
+                      <Check className="h-2.5 w-2.5 stroke-[3]" />
+                    </span>
+                  )}
                 </div>
 
-                <p className="mt-2 text-xs text-slate-500 line-clamp-2">{zone.description}</p>
+                <p className="mt-2 text-[11px] text-[#ebebeb]/50 line-clamp-2">{zone.description}</p>
 
-                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-900">₹{rateRupees} / hr</span>
-                  <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-600">
-                    Cap: {zone.capacity}
+                <div className="mt-4 flex items-baseline justify-between border-t border-white/5 pt-2">
+                  <span className="text-[10px] uppercase text-[#ebebeb]/40">Rate</span>
+                  <span className="text-xs font-bold text-[#ccff00]">
+                    ₹{(zone.ratePerHourPaise / 100).toLocaleString("en-IN")}/hr
                   </span>
                 </div>
               </div>
             );
           })}
         </div>
+        {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
       </div>
 
-      {error && <p className="text-xs text-red-600 font-medium">{error}</p>}
+      {/* Selected Corridor Specs */}
+      {selectedZone && (
+        <div className="rounded-2xl border border-white/10 bg-black/40 p-4 space-y-1">
+          <div className="flex justify-between text-xs">
+            <span className="text-[#ebebeb]/40 uppercase">Selected Corridor</span>
+            <span className="font-bold text-[#ebebeb]">{selectedZone.name}</span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-[#ebebeb]/40 uppercase">Hourly Flight Rate</span>
+            <span className="font-bold text-[#ccff00]">
+              ₹{(selectedZone.ratePerHourPaise / 100).toLocaleString("en-IN")} INR / hr (excl. 18% GST)
+            </span>
+          </div>
+          {selectedZone.notes && (
+            <div className="pt-2 text-[11px] text-[#ebebeb]/50 border-t border-white/5">
+              <strong>Corridor Note:</strong> {selectedZone.notes}
+            </div>
+          )}
+        </div>
+      )}
 
-      <div className="flex justify-between pt-4 border-t border-slate-200">
+      {/* Navigation Buttons */}
+      <div className="flex items-center justify-between pt-4 border-t border-white/10">
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+          className="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-5 py-2 text-xs font-bold text-[#ebebeb]/70 hover:text-white transition-colors"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back: Creative
+          <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
+          Back
         </button>
-
         <button
-          type="submit"
+          type="button"
           disabled={!selectedZoneId}
-          className="inline-flex items-center rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={handleContinue}
+          className="inline-flex items-center rounded-full bg-[#ccff00] px-6 py-2.5 text-xs font-bold text-black hover:bg-white transition-all shadow-[0_0_20px_rgba(204,255,0,0.25)] disabled:opacity-40"
         >
-          Next: Choose Schedule
+          Next: Schedule Window
           <ArrowRight className="ml-2 h-4 w-4" />
         </button>
       </div>
-    </form>
+    </div>
   );
 }

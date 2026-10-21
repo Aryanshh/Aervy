@@ -129,8 +129,10 @@ export function StepReview({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Step 6: Review Summary & Server Quote</h2>
-        <p className="text-sm text-slate-500 mt-1">
+        <h2 className="text-xl sm:text-2xl font-heading font-bold text-[#ebebeb] tracking-tight">
+          Step 6: Review Summary & Server Quote
+        </h2>
+        <p className="text-sm text-[#ebebeb]/60 mt-1">
           Review your campaign details and verify the server-computed price breakdown.
         </p>
       </div>
@@ -138,122 +140,122 @@ export function StepReview({
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Campaign Basics */}
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center space-x-2 text-xs font-semibold uppercase text-slate-500 mb-3">
-            <FileText className="h-4 w-4 text-blue-600" />
+        <div className="rounded-2xl border border-white/10 bg-[#0c0c0c] p-5 shadow-xl">
+          <div className="flex items-center space-x-2 text-xs font-mono font-semibold uppercase tracking-wider text-[#ccff00] mb-3">
+            <FileText className="h-4 w-4" />
             <span>Campaign Details</span>
           </div>
           <dl className="space-y-2 text-sm">
             <div>
-              <dt className="text-xs text-slate-400">Name</dt>
-              <dd className="font-semibold text-slate-900">{data.name}</dd>
+              <dt className="font-mono text-[10px] uppercase tracking-wider text-[#ebebeb]/40">Name</dt>
+              <dd className="font-heading font-semibold text-[#ebebeb]">{data.name}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-400">Brand</dt>
-              <dd className="text-slate-800">{data.brand}</dd>
+              <dt className="font-mono text-[10px] uppercase tracking-wider text-[#ebebeb]/40">Brand</dt>
+              <dd className="text-[#ebebeb]/80">{data.brand}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-400">Objective</dt>
-              <dd className="text-slate-800">{data.objective}</dd>
+              <dt className="font-mono text-[10px] uppercase tracking-wider text-[#ebebeb]/40">Objective</dt>
+              <dd className="text-[#ebebeb]/80">{data.objective}</dd>
             </div>
             {data.description && (
               <div>
-                <dt className="text-xs text-slate-400">Notes</dt>
-                <dd className="text-xs text-slate-600">{data.description}</dd>
+                <dt className="font-mono text-[10px] uppercase tracking-wider text-[#ebebeb]/40">Notes</dt>
+                <dd className="text-xs text-[#ebebeb]/60">{data.description}</dd>
               </div>
             )}
           </dl>
         </div>
 
         {/* Location & Schedule */}
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center space-x-2 text-xs font-semibold uppercase text-slate-500 mb-3">
-            <ShieldCheck className="h-4 w-4 text-blue-600" />
+        <div className="rounded-2xl border border-white/10 bg-[#0c0c0c] p-5 shadow-xl">
+          <div className="flex items-center space-x-2 text-xs font-mono font-semibold uppercase tracking-wider text-[#10b981] mb-3">
+            <ShieldCheck className="h-4 w-4" />
             <span>Flight Location & Timing</span>
           </div>
           <dl className="space-y-2 text-sm">
             <div>
-              <dt className="text-xs text-slate-400">Flight Zone</dt>
-              <dd className="font-semibold text-slate-900">{data.zoneName}</dd>
+              <dt className="font-mono text-[10px] uppercase tracking-wider text-[#ebebeb]/40">Flight Zone</dt>
+              <dd className="font-heading font-semibold text-[#ebebeb]">{data.zoneName}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-400">Start (IST)</dt>
-              <dd className="text-slate-800">{new Date(data.startAt).toLocaleString("en-IN")}</dd>
+              <dt className="font-mono text-[10px] uppercase tracking-wider text-[#ebebeb]/40">Start (IST)</dt>
+              <dd className="text-[#ebebeb]/80">{new Date(data.startAt).toLocaleString("en-IN")}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-400">End (IST)</dt>
-              <dd className="text-slate-800">{new Date(data.endAt).toLocaleString("en-IN")}</dd>
+              <dt className="font-mono text-[10px] uppercase tracking-wider text-[#ebebeb]/40">End (IST)</dt>
+              <dd className="text-[#ebebeb]/80">{new Date(data.endAt).toLocaleString("en-IN")}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-400">Duration</dt>
-              <dd className="font-semibold text-blue-600">{data.billableHours} billable hour(s)</dd>
+              <dt className="font-mono text-[10px] uppercase tracking-wider text-[#ebebeb]/40">Duration</dt>
+              <dd className="font-mono font-bold text-[#ccff00]">{data.billableHours} billable hour(s)</dd>
             </div>
           </dl>
         </div>
       </div>
 
       {/* Verified Price Quote Card */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+      <div className="rounded-2xl border border-white/10 bg-[#0c0c0c] p-6 shadow-2xl relative overflow-hidden">
+        <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
           <div>
-            <h3 className="font-bold text-slate-900">Verified Pricing Breakdown</h3>
-            <p className="text-xs text-slate-500">
+            <h3 className="font-heading font-bold text-lg text-[#ebebeb] tracking-tight">Verified Pricing Breakdown</h3>
+            <p className="font-mono text-xs text-[#ebebeb]/50 mt-0.5">
               Computed strictly server-side in integer paise (INR).
             </p>
           </div>
           {quote && (
-            <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 border border-emerald-200">
-              <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
+            <span className="inline-flex items-center rounded-full bg-[#10b981]/10 px-3 py-1 font-mono text-[11px] font-bold text-[#10b981] border border-[#10b981]/30">
+              <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
               Verified Quote
             </span>
           )}
         </div>
 
         {isLoadingQuote ? (
-          <div className="flex items-center justify-center py-6 text-slate-400">
-            <Loader2 className="h-6 w-6 animate-spin mr-2 text-blue-600" />
-            <span className="text-sm">Calculating server quote...</span>
+          <div className="flex items-center justify-center py-8 text-[#ebebeb]/50">
+            <Loader2 className="h-6 w-6 animate-spin mr-2 text-[#ccff00]" />
+            <span className="font-mono text-xs uppercase tracking-wider">Calculating server quote...</span>
           </div>
         ) : quoteError ? (
-          <div className="p-3 text-xs text-red-600 bg-red-50 rounded-lg border border-red-200">
+          <div className="p-4 text-xs font-mono text-red-400 bg-red-500/10 rounded-xl border border-red-500/20">
             {quoteError}
           </div>
         ) : quote ? (
           <div className="space-y-3">
-            <div className="flex justify-between text-sm text-slate-600">
+            <div className="flex justify-between text-sm text-[#ebebeb]/70">
               <span>
                 Zone Hourly Rate ({data.billableHours} hr @ ₹
                 {formatPaiseToRupees(quote.zoneRatePaise)}/hr)
               </span>
-              <span>₹{formatPaiseToRupees(quote.subtotalPaise)}</span>
+              <span className="font-mono text-[#ebebeb]">₹{formatPaiseToRupees(quote.subtotalPaise)}</span>
             </div>
 
             {quote.discountPaise > 0 && (
-              <div className="flex justify-between text-sm text-emerald-600">
+              <div className="flex justify-between text-sm text-[#10b981]">
                 <span>Promotional Discount</span>
-                <span>-₹{formatPaiseToRupees(quote.discountPaise)}</span>
+                <span className="font-mono">-₹{formatPaiseToRupees(quote.discountPaise)}</span>
               </div>
             )}
 
-            <div className="flex justify-between text-sm text-slate-600">
+            <div className="flex justify-between text-sm text-[#ebebeb]/70">
               <span>GST ({quote.gstBps / 100}%)</span>
-              <span>₹{formatPaiseToRupees(quote.gstPaise)}</span>
+              <span className="font-mono text-[#ebebeb]">₹{formatPaiseToRupees(quote.gstPaise)}</span>
             </div>
 
-            <div className="border-t border-slate-200 pt-3 flex justify-between items-baseline">
-              <span className="font-bold text-slate-900 text-base">Total Payable</span>
+            <div className="border-t border-white/10 pt-4 flex justify-between items-baseline">
+              <span className="font-heading font-bold text-[#ebebeb] text-base">Total Payable</span>
               <div className="text-right">
-                <span className="font-extrabold text-2xl text-blue-600">
+                <span className="font-heading font-extrabold text-3xl text-[#ccff00] tracking-tight">
                   ₹{formatPaiseToRupees(quote.totalPaise)}
                 </span>
-                <span className="block text-[11px] text-slate-400 font-mono">
+                <span className="block text-[11px] text-[#ebebeb]/40 font-mono mt-0.5">
                   {quote.totalPaise} paise (INR)
                 </span>
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-mono">
-              <span>Quote Hash:</span>
+            <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-[#ebebeb]/40 font-mono">
+              <span className="uppercase tracking-wider">Quote Hash:</span>
               <span className="truncate max-w-xs">{quote.inputsHash}</span>
             </div>
           </div>
@@ -261,36 +263,38 @@ export function StepReview({
       </div>
 
       {/* Mandatory Safety Acknowledgement */}
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+      <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5">
         <label className="flex items-start space-x-3 cursor-pointer">
           <input
             id="acknowledge-safety"
             type="checkbox"
             checked={acknowledgedSafety}
             onChange={(e) => setAcknowledgedSafety(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-amber-300 text-blue-600 focus:ring-blue-500"
+            className="mt-1 h-4 w-4 rounded border-amber-400/40 bg-black/60 text-[#ccff00] focus:ring-[#ccff00]"
           />
-          <div className="text-xs text-amber-900">
-            <span className="font-bold block">
+          <div className="text-xs text-amber-200">
+            <span className="font-heading font-bold block text-sm text-amber-300">
               I acknowledge: Submitting a campaign is a REQUEST, never a flight authorization.
             </span>
-            <span className="mt-1 block text-amber-800">
+            <span className="mt-1 block text-amber-200/80 leading-relaxed">
               Flight deployment is subject to trained human operator review, airspace authorizations,
               weather clearance, and local police/venue permissions.
             </span>
           </div>
         </label>
         {validationError && (
-          <p className="mt-2 text-xs font-semibold text-red-600">{validationError}</p>
+          <p className="mt-3 text-xs font-mono font-semibold text-red-400 bg-red-500/10 p-2 rounded border border-red-500/20">
+            {validationError}
+          </p>
         )}
       </div>
 
       {/* Wizard Footer Actions */}
-      <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+      <div className="flex items-center justify-between pt-6 border-t border-white/10">
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+          className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-5 py-2.5 font-mono text-xs uppercase tracking-wider font-semibold text-[#ebebeb] hover:bg-white/10 transition-colors"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back: Details
@@ -301,7 +305,7 @@ export function StepReview({
             type="button"
             onClick={handleDraftSave}
             disabled={isSavingDraft}
-            className="rounded-md border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-50"
+            className="rounded-full border border-white/10 bg-white/5 px-5 py-2.5 font-mono text-xs uppercase tracking-wider font-semibold text-[#ebebeb] hover:bg-white/10 transition-colors disabled:opacity-50"
           >
             {isSavingDraft ? "Saving Draft..." : "Save Draft"}
           </button>
@@ -309,7 +313,7 @@ export function StepReview({
           <button
             type="submit"
             disabled={!acknowledgedSafety || !quote || isSubmitting}
-            className="inline-flex items-center rounded-md bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center rounded-full bg-[#ccff00] px-6 py-2.5 font-mono text-xs uppercase tracking-wider font-bold text-black hover:bg-white transition-all shadow-[0_0_20px_rgba(204,255,0,0.25)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
               <>
