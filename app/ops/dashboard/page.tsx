@@ -7,11 +7,8 @@ import {
   Inbox,
   Clock,
   Calendar,
-  MapPin,
   ArrowRight,
   Plane,
-  Eye,
-  Building2,
   Loader2,
 } from "lucide-react";
 
@@ -65,255 +62,248 @@ export default function OpsDashboardPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
-      {/* Header */}
-      <header className="border-b border-slate-200 bg-white sticky top-0 z-20">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center space-x-3">
-            <span className="text-lg font-bold text-slate-900">Aervy Operations</span>
-            <span className="text-slate-300">|</span>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Control Center
+    <div className="min-h-screen bg-[#000000] p-2 sm:p-5 lg:p-8 flex justify-center text-[#ebebeb] selection:bg-[#ccff00] selection:text-black font-sans">
+      {/* Floating Shell Container */}
+      <div className="w-full max-w-[1600px] rounded-[2.5rem] ring-1 ring-white/10 shadow-2xl bg-[#0c0c0c] overflow-hidden relative flex flex-col justify-between">
+        
+        {/* Background Grid & Noise */}
+        <div className="absolute inset-0 bg-grid-pattern pointer-events-none opacity-80" />
+        <div className="absolute inset-0 bg-noise pointer-events-none mix-blend-overlay" />
+        <div className="absolute top-0 right-1/3 w-[500px] h-[500px] glow-sphere-lime pointer-events-none" />
+
+        {/* Header */}
+        <header className="relative z-30 px-6 sm:px-10 py-6 flex items-center justify-between border-b border-white/5">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl bg-[#ccff00] text-black font-extrabold flex items-center justify-center text-xl shadow-[0_0_20px_rgba(204,255,0,0.4)] group-hover:scale-105 transition-transform font-mono">
+                A
+              </div>
+              <span className="font-heading font-bold text-xl tracking-tighter text-[#ebebeb]">
+                Aervy
+              </span>
+            </Link>
+            <span className="text-white/20">/</span>
+            <span className="font-mono text-xs uppercase tracking-wider text-[#ccff00]">
+              Operations Command Center
             </span>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3">
             <Link
               href="/ops/campaigns"
-              className="text-xs font-semibold text-blue-600 hover:text-blue-500 bg-blue-50 px-3 py-1.5 rounded-md border border-blue-200"
+              className="font-mono text-xs uppercase tracking-wider text-black bg-[#ccff00] hover:bg-white font-bold px-4 py-2 rounded-full transition-colors"
             >
               Open Review Queue
             </Link>
             <Link
               href="/ops/zones"
-              className="text-xs font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 px-3 py-1.5 rounded-md"
+              className="font-mono text-xs uppercase tracking-wider text-[#ebebeb]/70 hover:text-white bg-white/5 border border-white/10 px-4 py-2 rounded-full transition-colors"
             >
               Airspace Zones
             </Link>
-            <div className="flex items-center space-x-1.5 rounded-md bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 border border-amber-200">
-              <ShieldAlert className="h-3.5 w-3.5 text-amber-600" />
-              <span>Operations Portal</span>
-            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Safety Notice Banner */}
-      <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-900">
-        <div className="mx-auto max-w-7xl flex items-center justify-between">
-          <p className="flex items-center">
-            <ShieldAlert className="mr-1.5 h-4 w-4 text-amber-600 flex-shrink-0" />
+        {/* Safety Gate Banner */}
+        <div className="bg-[#ccff00]/10 border-b border-[#ccff00]/20 px-6 sm:px-10 py-2.5 text-xs font-mono text-[#ccff00] flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="h-4 w-4 shrink-0" />
             <span>
-              <strong>Operations Safety Gate:</strong> Reviewers must verify airspace no-fly zones, DGCA rules,
-              and creative strobe guidelines before scheduling flights.
+              <strong>Operations Safety Gate:</strong> Reviewers must verify DGCA Green Zone corridors, weather envelopes (&lt;14 kts), and creative strobe limits before authorizing flight.
             </span>
-          </p>
-          <Link href="/ops/campaigns" className="text-amber-800 hover:underline font-semibold hidden md:inline">
+          </div>
+          <Link href="/ops/campaigns" className="hover:underline font-bold hidden md:inline">
             Review Queue →
           </Link>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl space-y-8">
+        {/* Main Content */}
+        <main className="relative z-20 flex-1 px-6 sm:px-12 py-10 space-y-8">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Operations Overview</h1>
-            <p className="text-sm text-slate-500 mt-1">
+            <h1 className="text-3xl font-heading font-bold text-[#ebebeb]">
+              Operations Command Center
+            </h1>
+            <p className="text-xs font-mono text-[#ebebeb]/60 mt-1">
               Active campaign requests, regulatory review queue, and scheduled drone deployment pipeline.
             </p>
           </div>
 
           {/* Metric Cards Grid */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Card 1: Pending Review */}
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            
+            {/* Card 1: Pending Safety Review */}
             <Link
               href="/ops/campaigns?status=SUBMITTED"
-              className="rounded-xl border border-blue-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow group"
+              className="rounded-[2rem] border border-white/10 bg-white/[0.03] backdrop-blur-[16px] p-6 hover:border-[#ccff00]/50 transition-all duration-300 group block font-mono"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase text-slate-500">Awaiting Review</span>
-                <div className="rounded-lg bg-blue-50 p-2 text-blue-600 group-hover:scale-110 transition-transform">
-                  <Inbox className="h-5 w-5" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#ccff00]">
+                  Pending Safety Review
+                </span>
+                <div className="rounded-xl bg-[#ccff00]/10 p-2 text-[#ccff00] group-hover:scale-110 transition-transform">
+                  <Inbox className="h-4 w-4" />
                 </div>
               </div>
-              <div className="mt-3">
-                <span className="text-3xl font-extrabold text-slate-900">
+              <div className="mt-3 flex items-baseline">
+                <span className="text-3xl font-heading font-bold text-[#ebebeb]">
                   {isLoading ? "..." : data?.counts.submitted ?? 0}
                 </span>
-                <span className="text-xs text-blue-600 font-semibold ml-2">Needs Action</span>
+                <span className="text-[10px] text-[#ccff00] font-bold ml-2">Needs Review</span>
               </div>
-              <p className="text-xs text-slate-500 mt-2">New campaigns paid and submitted</p>
+              <p className="text-xs text-[#ebebeb]/50 mt-2">New campaigns paid & submitted</p>
             </Link>
 
             {/* Card 2: In Review */}
             <Link
               href="/ops/campaigns?status=UNDER_REVIEW"
-              className="rounded-xl border border-purple-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow group"
+              className="rounded-[2rem] border border-white/10 bg-white/[0.03] backdrop-blur-[16px] p-6 hover:border-amber-500/50 transition-all duration-300 group block font-mono"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase text-slate-500">Under Review</span>
-                <div className="rounded-lg bg-purple-50 p-2 text-purple-600 group-hover:scale-110 transition-transform">
-                  <Clock className="h-5 w-5" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                  Under Ops Review
+                </span>
+                <div className="rounded-xl bg-amber-500/10 p-2 text-amber-400 group-hover:scale-110 transition-transform">
+                  <Clock className="h-4 w-4" />
                 </div>
               </div>
               <div className="mt-3">
-                <span className="text-3xl font-extrabold text-slate-900">
+                <span className="text-3xl font-heading font-bold text-[#ebebeb]">
                   {isLoading ? "..." : data?.counts.underReview ?? 0}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-2">Feasibility & checklist checks underway</p>
+              <p className="text-xs text-[#ebebeb]/50 mt-2">Corridor checklist underway</p>
             </Link>
 
-            {/* Card 3: Approved / Scheduled */}
+            {/* Card 3: Scheduled Flights */}
             <Link
               href="/ops/campaigns?status=SCHEDULED"
-              className="rounded-xl border border-teal-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow group"
+              className="rounded-[2rem] border border-white/10 bg-white/[0.03] backdrop-blur-[16px] p-6 hover:border-[#10b981]/50 transition-all duration-300 group block font-mono"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase text-slate-500">Scheduled Flights</span>
-                <div className="rounded-lg bg-teal-50 p-2 text-teal-600 group-hover:scale-110 transition-transform">
-                  <Calendar className="h-5 w-5" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#10b981]">
+                  Scheduled Slots
+                </span>
+                <div className="rounded-xl bg-[#10b981]/10 p-2 text-[#10b981] group-hover:scale-110 transition-transform">
+                  <Calendar className="h-4 w-4" />
                 </div>
               </div>
               <div className="mt-3">
-                <span className="text-3xl font-extrabold text-slate-900">
+                <span className="text-3xl font-heading font-bold text-[#ebebeb]">
                   {isLoading ? "..." : (data?.counts.approved ?? 0) + (data?.counts.scheduled ?? 0)}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-2">Approved & confirmed operational slots</p>
+              <p className="text-xs text-[#ebebeb]/50 mt-2">Approved & confirmed flight windows</p>
             </Link>
 
-            {/* Card 4: Active Flights */}
+            {/* Card 4: Active in Flight */}
             <Link
               href="/ops/campaigns?status=READY_FOR_OPERATIONS"
-              className="rounded-xl border border-emerald-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow group"
+              className="rounded-[2rem] border border-white/10 bg-white/[0.03] backdrop-blur-[16px] p-6 hover:border-purple-500/50 transition-all duration-300 group block font-mono"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase text-slate-500">Active Flights</span>
-                <div className="rounded-lg bg-emerald-50 p-2 text-emerald-600 group-hover:scale-110 transition-transform">
-                  <Plane className="h-5 w-5 animate-pulse" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400">
+                  Active in Flight
+                </span>
+                <div className="rounded-xl bg-purple-500/10 p-2 text-purple-400 group-hover:scale-110 transition-transform">
+                  <Plane className="h-4 w-4 animate-pulse" />
                 </div>
               </div>
               <div className="mt-3">
-                <span className="text-3xl font-extrabold text-slate-900">
+                <span className="text-3xl font-heading font-bold text-[#ebebeb]">
                   {isLoading ? "..." : data?.counts.activeFlight ?? 0}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-2">Airborne or ready for field deployment</p>
+              <p className="text-xs text-[#ebebeb]/50 mt-2">Live drone luminaire broadcasts</p>
             </Link>
+
           </div>
 
-          {/* Quick Actions & Recent Queue Split */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left 2 Cols: Recent Submissions */}
-            <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div className="flex items-center space-x-2">
-                  <Inbox className="h-5 w-5 text-blue-600" />
-                  <h2 className="text-base font-bold text-slate-900">Recent Queue Items</h2>
-                </div>
-                <Link
-                  href="/ops/campaigns"
-                  className="inline-flex items-center text-xs font-semibold text-blue-600 hover:text-blue-500"
-                >
-                  View All ({isLoading ? 0 : data?.recentCampaigns.length}) <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                </Link>
-              </div>
-
-              {isLoading ? (
-                <div className="py-12 text-center">
-                  <Loader2 className="mx-auto h-6 w-6 animate-spin text-slate-400" />
-                  <p className="text-xs text-slate-400 mt-1">Loading queue items...</p>
-                </div>
-              ) : data?.recentCampaigns.length === 0 ? (
-                <div className="py-8 text-center text-xs text-slate-400">
-                  No campaigns submitted for review yet.
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-100">
-                  {data?.recentCampaigns.map((camp) => (
-                    <div key={camp.id} className="py-3 flex items-center justify-between gap-4">
-                      <div className="space-y-1">
-                        <span className="font-bold text-slate-900 text-sm block truncate max-w-sm">
-                          {camp.name}
-                        </span>
-                        <div className="flex items-center space-x-3 text-xs text-slate-500">
-                          <span className="flex items-center">
-                            <Building2 className="mr-1 h-3.5 w-3.5 text-slate-400" />
-                            {camp.organization.name}
-                          </span>
-                          <span className="flex items-center">
-                            <MapPin className="mr-1 h-3.5 w-3.5 text-emerald-600" />
-                            {camp.zone?.name || "Zone TBD"}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-3">
-                        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
-                          {camp.status}
-                        </span>
-                        <Link
-                          href={`/ops/campaigns/${camp.id}`}
-                          className="inline-flex items-center rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-500"
-                        >
-                          <Eye className="mr-1 h-3.5 w-3.5" />
-                          Inspect
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+          {/* Recent Submissions Table */}
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] backdrop-blur-[16px] shadow-2xl overflow-hidden font-mono">
+            <div className="flex items-center justify-between px-8 py-5 border-b border-white/10">
+              <h2 className="text-base font-heading font-bold text-[#ebebeb]">
+                Recent Campaign Submissions
+              </h2>
+              <Link
+                href="/ops/campaigns"
+                className="text-xs font-bold text-[#ccff00] hover:text-white flex items-center transition-colors"
+              >
+                View full queue <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+              </Link>
             </div>
 
-            {/* Right Column: Shortcuts & Operations Links */}
-            <div className="space-y-4">
-              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
-                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
-                  Operations Shortcuts
-                </h3>
-                <div className="space-y-2 text-xs">
-                  <Link
-                    href="/ops/campaigns?status=SUBMITTED"
-                    className="flex items-center justify-between rounded-lg p-2.5 hover:bg-slate-50 border border-slate-100 text-slate-700 transition-colors"
-                  >
-                    <span className="font-semibold">Review Pending Submissions</span>
-                    <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
-                  </Link>
-                  <Link
-                    href="/ops/zones"
-                    className="flex items-center justify-between rounded-lg p-2.5 hover:bg-slate-50 border border-slate-100 text-slate-700 transition-colors"
-                  >
-                    <span className="font-semibold">Manage Airspace Zones</span>
-                    <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
-                  </Link>
-                  <Link
-                    href="/app/dashboard"
-                    className="flex items-center justify-between rounded-lg p-2.5 hover:bg-slate-50 border border-slate-100 text-slate-700 transition-colors"
-                  >
-                    <span className="font-semibold">Switch to Advertiser Portal</span>
-                    <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
-                  </Link>
-                </div>
+            {isLoading ? (
+              <div className="p-16 text-center text-xs text-[#ebebeb]/50">
+                <Loader2 className="mx-auto h-6 w-6 animate-spin text-[#ccff00] mb-2" />
+                Loading submissions...
               </div>
-
-              {/* Pilot Reference Card */}
-              <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-xs text-amber-900 space-y-2">
-                <span className="font-bold flex items-center">
-                  <ShieldAlert className="mr-1 h-4 w-4 text-amber-700" />
-                  Safety Protocol Checklist
-                </span>
-                <p className="text-amber-800">
-                  Every deployment must satisfy the 4 pre-flight pillars: Creative Standards, Airspace Green Zone,
-                  Venue NOC, and Wind Envelope under 15 knots.
-                </p>
+            ) : !data?.recentCampaigns.length ? (
+              <div className="p-16 text-center text-xs text-[#ebebeb]/50">No submissions found.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-white/10 text-left text-xs">
+                  <thead>
+                    <tr className="text-[#ebebeb]/40 uppercase text-[10px] tracking-widest bg-white/[0.02]">
+                      <th className="px-6 py-4">Campaign</th>
+                      <th className="px-6 py-4">Brand / Org</th>
+                      <th className="px-6 py-4">Corridor</th>
+                      <th className="px-6 py-4">Status</th>
+                      <th className="px-6 py-4 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {data.recentCampaigns.map((camp) => (
+                      <tr key={camp.id} className="hover:bg-white/[0.03] transition-colors">
+                        <td className="px-6 py-4">
+                          <Link
+                            href={`/ops/campaigns/${camp.id}`}
+                            className="font-heading font-bold text-[#ebebeb] hover:text-[#ccff00] text-sm block"
+                          >
+                            {camp.name}
+                          </Link>
+                          <span className="text-[10px] text-[#ebebeb]/40">ID: {camp.id.slice(0, 8)}...</span>
+                        </td>
+                        <td className="px-6 py-4 text-[#ebebeb]/70">
+                          <div>{camp.brand}</div>
+                          <div className="text-[10px] text-[#ebebeb]/40">{camp.organization.name}</div>
+                        </td>
+                        <td className="px-6 py-4 text-[#ebebeb]/70">
+                          {camp.zone?.name || "Unassigned"}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-[10px] text-[#ebebeb]/80">
+                            {camp.status.replace(/_/g, " ")}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <Link
+                            href={`/ops/campaigns/${camp.id}`}
+                            className="inline-flex items-center text-xs font-bold text-[#ccff00] hover:text-white"
+                          >
+                            Review →
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </div>
+            )}
           </div>
-        </div>
-      </main>
+
+        </main>
+
+        {/* Footer */}
+        <footer className="relative z-30 px-6 sm:px-10 py-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-[#ebebeb]/40">
+          <div>© 2026 AERVY TECHNOLOGIES INC.</div>
+          <div className="flex gap-4 mt-2 sm:mt-0">
+            <Link href="/" className="hover:text-white">Home</Link>
+            <Link href="/ops/campaigns" className="hover:text-white">Queue</Link>
+            <Link href="/ops/zones" className="hover:text-white">Zones</Link>
+          </div>
+        </footer>
+
+      </div>
     </div>
   );
 }

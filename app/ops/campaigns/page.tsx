@@ -7,14 +7,9 @@ import {
   ShieldAlert,
   Search,
   CheckCircle2,
-  Clock,
-  Calendar,
   Eye,
   Loader2,
   MapPin,
-  Building2,
-  Film,
-  Image as ImageIcon,
 } from "lucide-react";
 
 interface CampaignQueueItem {
@@ -102,11 +97,11 @@ export default function OpsCampaignsQueuePage() {
   }, [fetchQueue]);
 
   const tabs = [
-    { id: "ALL", label: "All Campaigns" },
-    { id: "SUBMITTED", label: "Submitted", count: counts.submitted, highlight: counts.submitted > 0 },
+    { id: "ALL", label: "All Submissions" },
+    { id: "SUBMITTED", label: "Pending Review", count: counts.submitted, highlight: counts.submitted > 0 },
     { id: "UNDER_REVIEW", label: "Under Review", count: counts.underReview },
-    { id: "CHANGES_REQUESTED", label: "Changes Requested", count: counts.changesRequested },
     { id: "APPROVED_FOR_SCHEDULING", label: "Approved", count: counts.approved },
+    { id: "CHANGES_REQUESTED", label: "Changes Requested", count: counts.changesRequested },
     { id: "SCHEDULED", label: "Scheduled", count: counts.scheduled },
     { id: "READY_FOR_OPERATIONS", label: "Active Deployments", count: counts.activeFlight },
     { id: "COMPLETED", label: "Completed", count: counts.completed },
@@ -116,107 +111,125 @@ export default function OpsCampaignsQueuePage() {
   const getStatusBadge = (status: CampaignStatus) => {
     switch (status) {
       case "SUBMITTED":
-        return <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800">Submitted</span>;
+        return <span className="font-mono text-[10px] uppercase tracking-wider rounded-full bg-[#ccff00]/10 border border-[#ccff00]/30 px-2.5 py-0.5 text-[#ccff00]">Submitted</span>;
       case "UNDER_REVIEW":
-        return <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-semibold text-purple-800">Under Review</span>;
+        return <span className="font-mono text-[10px] uppercase tracking-wider rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 text-amber-400">Under Review</span>;
       case "CHANGES_REQUESTED":
-        return <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">Changes Requested</span>;
+        return <span className="font-mono text-[10px] uppercase tracking-wider rounded-full bg-orange-500/10 border border-orange-500/30 px-2.5 py-0.5 text-orange-400">Changes Requested</span>;
       case "APPROVED_FOR_SCHEDULING":
-        return <span className="rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-semibold text-teal-800">Approved</span>;
+        return <span className="font-mono text-[10px] uppercase tracking-wider rounded-full bg-[#10b981]/10 border border-[#10b981]/30 px-2.5 py-0.5 text-[#10b981]">Approved</span>;
       case "SCHEDULED":
-        return <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-semibold text-indigo-800">Scheduled</span>;
+        return <span className="font-mono text-[10px] uppercase tracking-wider rounded-full bg-indigo-500/10 border border-indigo-500/30 px-2.5 py-0.5 text-indigo-300">Scheduled</span>;
       case "READY_FOR_OPERATIONS":
       case "IN_PROGRESS":
-        return <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 animate-pulse">In Flight</span>;
+        return <span className="font-mono text-[10px] uppercase tracking-wider rounded-full bg-purple-500/10 border border-purple-500/30 px-2.5 py-0.5 text-purple-300 animate-pulse">In Flight</span>;
       case "COMPLETED":
-        return <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">Completed</span>;
+        return <span className="font-mono text-[10px] uppercase tracking-wider rounded-full bg-white/10 border border-white/20 px-2.5 py-0.5 text-white">Completed</span>;
       case "REJECTED":
-        return <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800">Rejected & Refunded</span>;
+        return <span className="font-mono text-[10px] uppercase tracking-wider rounded-full bg-red-500/10 border border-red-500/30 px-2.5 py-0.5 text-red-400">Rejected & Refunded</span>;
       case "ON_HOLD":
-        return <span className="rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-semibold text-orange-800">On Hold</span>;
+        return <span className="font-mono text-[10px] uppercase tracking-wider rounded-full bg-orange-500/10 border border-orange-500/30 px-2.5 py-0.5 text-orange-300">On Hold</span>;
       default:
-        return <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">{status}</span>;
+        return <span className="font-mono text-[10px] uppercase tracking-wider rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-[#ebebeb]/50">{status}</span>;
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
-      {/* Header */}
-      <header className="border-b border-slate-200 bg-white sticky top-0 z-20">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center space-x-3">
-            <Link href="/ops/dashboard" className="text-sm font-semibold text-slate-600 hover:text-slate-900">
+    <div className="min-h-screen bg-[#000000] p-2 sm:p-5 lg:p-8 flex justify-center text-[#ebebeb] selection:bg-[#ccff00] selection:text-black font-sans">
+      {/* Floating Shell Container */}
+      <div className="w-full max-w-[1600px] rounded-[2.5rem] ring-1 ring-white/10 shadow-2xl bg-[#0c0c0c] overflow-hidden relative flex flex-col justify-between">
+        
+        {/* Background Grid & Noise */}
+        <div className="absolute inset-0 bg-grid-pattern pointer-events-none opacity-80" />
+        <div className="absolute inset-0 bg-noise pointer-events-none mix-blend-overlay" />
+        <div className="absolute top-0 right-10 w-[500px] h-[500px] glow-sphere-lime pointer-events-none" />
+
+        {/* Header */}
+        <header className="relative z-30 px-6 sm:px-10 py-6 flex items-center justify-between border-b border-white/5">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl bg-[#ccff00] text-black font-extrabold flex items-center justify-center text-xl shadow-[0_0_20px_rgba(204,255,0,0.4)] group-hover:scale-105 transition-transform font-mono">
+                A
+              </div>
+              <span className="font-heading font-bold text-xl tracking-tighter text-[#ebebeb]">
+                Aervy
+              </span>
+            </Link>
+            <span className="text-white/20">/</span>
+            <Link href="/ops/dashboard" className="font-mono text-xs text-[#ebebeb]/60 hover:text-white uppercase tracking-wider">
               Ops Dashboard
             </Link>
-            <span className="text-slate-300">/</span>
-            <span className="text-base font-bold text-slate-900">Review Queue</span>
+            <span className="text-white/20">/</span>
+            <span className="font-mono text-xs uppercase tracking-wider text-[#ccff00]">
+              Operations Review Queue
+            </span>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3">
             <Link
               href="/ops/zones"
-              className="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 px-3 py-1.5 rounded-md"
+              className="font-mono text-xs uppercase tracking-wider text-[#ebebeb]/70 hover:text-white bg-white/5 border border-white/10 px-4 py-2 rounded-full transition-colors"
             >
               Approved Zones
             </Link>
-            <div className="flex items-center space-x-1.5 rounded-md bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 border border-amber-200">
-              <ShieldAlert className="h-3.5 w-3.5 text-amber-600" />
+            <div className="flex items-center space-x-1.5 rounded-full bg-[#ccff00]/10 px-3.5 py-1.5 text-xs font-mono font-bold text-[#ccff00] border border-[#ccff00]/30">
+              <ShieldAlert className="h-3.5 w-3.5" />
               <span>Operations Portal</span>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Container */}
-      <main className="flex-1 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl space-y-6">
+        {/* Main Container */}
+        <main className="relative z-20 flex-1 px-6 sm:px-12 py-10 space-y-8">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Operations Campaign Review Queue</h1>
-            <p className="text-sm text-slate-500 mt-1">
+            <h1 className="text-3xl font-heading font-bold text-[#ebebeb]">
+              Operations Review Queue
+            </h1>
+            <p className="text-xs font-mono text-[#ebebeb]/60 mt-1">
               Verify advertiser creative media, assess DGCA airspace boundaries, and issue flight scheduling decisions.
             </p>
           </div>
 
           {/* Search & Filter Bar */}
-          <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div className="relative w-full sm:w-96">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+              <Search className="pointer-events-none absolute left-3.5 top-2.5 h-3.5 w-3.5 text-[#ebebeb]/40" />
               <input
                 type="text"
                 placeholder="Search campaigns, brands, or advertisers..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-md border border-slate-300 pl-9 pr-4 py-2 text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-full border border-white/10 bg-black/50 py-2 pl-9 pr-4 text-xs font-mono text-[#ebebeb] placeholder-[#ebebeb]/30 focus:border-[#ccff00] focus:outline-none transition-colors"
               />
             </div>
 
-            <div className="flex items-center space-x-2 text-xs text-slate-500 self-end sm:self-auto">
+            <div className="flex items-center space-x-2 text-xs font-mono text-[#ebebeb]/50 self-end sm:self-auto">
               <span>Showing <strong>{campaigns.length}</strong> campaigns</span>
             </div>
           </div>
 
           {/* Status Tabs Bar */}
-          <div className="border-b border-slate-200 overflow-x-auto">
-            <nav className="flex space-x-2 pb-2">
+          <div className="border-b border-white/10 overflow-x-auto pb-2">
+            <nav className="flex space-x-2">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setSelectedTab(tab.id)}
-                  className={`inline-flex items-center whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  className={`inline-flex items-center whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-mono transition-all duration-200 cursor-pointer ${
                     selectedTab === tab.id
-                      ? "bg-slate-900 text-white"
-                      : "text-slate-600 hover:bg-slate-100"
+                      ? "bg-[#ccff00] text-black font-bold shadow-[0_0_15px_rgba(204,255,0,0.3)]"
+                      : "bg-white/[0.03] text-[#ebebeb]/60 border border-white/10 hover:text-white hover:border-white/20"
                   }`}
                 >
                   {tab.label}
                   {tab.count !== undefined && (
                     <span
-                      className={`ml-1.5 rounded-full px-1.5 py-0.2 text-[10px] ${
+                      className={`ml-2 rounded-full px-1.5 py-0.5 text-[10px] ${
                         selectedTab === tab.id
-                          ? "bg-slate-700 text-white"
+                          ? "bg-black text-[#ccff00] font-bold"
                           : tab.highlight
-                            ? "bg-blue-100 text-blue-700 font-bold"
-                            : "bg-slate-200 text-slate-700"
+                            ? "bg-[#ccff00]/20 text-[#ccff00] font-bold"
+                            : "bg-white/10 text-[#ebebeb]/70"
                       }`}
                     >
                       {tab.count}
@@ -229,117 +242,100 @@ export default function OpsCampaignsQueuePage() {
 
           {/* Queue List Table */}
           {isLoading ? (
-            <div className="py-16 text-center">
-              <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600" />
-              <p className="mt-2 text-xs text-slate-500">Loading campaign review queue...</p>
+            <div className="py-20 text-center font-mono text-xs text-[#ebebeb]/50">
+              <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#ccff00]" />
+              <p className="mt-3">Loading campaign review queue...</p>
             </div>
           ) : campaigns.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center">
-              <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-500 mb-2" />
-              <h3 className="text-sm font-bold text-slate-800">Queue is Clear</h3>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                No campaigns currently match the selected filter. Newly submitted campaigns will appear here automatically.
+            <div className="rounded-[2rem] border border-dashed border-white/20 bg-white/[0.02] backdrop-blur-[16px] p-16 text-center font-mono">
+              <CheckCircle2 className="mx-auto h-10 w-10 text-[#10b981] mb-2" />
+              <h3 className="text-sm font-bold text-[#ebebeb]">Queue is Clear</h3>
+              <p className="text-xs text-[#ebebeb]/50 mt-1 max-w-sm mx-auto">
+                No campaigns currently match the selected operational review filter.
               </p>
             </div>
           ) : (
-            <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+            <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] backdrop-blur-[16px] shadow-2xl overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs divide-y divide-slate-200">
-                  <thead className="bg-slate-50 text-slate-500 uppercase font-semibold">
-                    <tr>
-                      <th className="py-3 px-4">Campaign & Brand</th>
-                      <th className="py-3 px-4">Organization</th>
-                      <th className="py-3 px-4">Airspace Zone</th>
-                      <th className="py-3 px-4">Requested Flight Window</th>
-                      <th className="py-3 px-4">Asset</th>
-                      <th className="py-3 px-4">Status</th>
-                      <th className="py-3 px-4 text-right">Action</th>
+                <table className="min-w-full divide-y divide-white/10 text-left text-xs font-mono">
+                  <thead>
+                    <tr className="text-[#ebebeb]/40 uppercase text-[10px] tracking-widest bg-white/[0.02]">
+                      <th className="px-6 py-4">Campaign</th>
+                      <th className="px-6 py-4">Advertiser / Brand</th>
+                      <th className="px-6 py-4">Airspace Zone</th>
+                      <th className="px-6 py-4">Flight Window</th>
+                      <th className="px-6 py-4">Status</th>
+                      <th className="px-6 py-4 text-right">Review Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {campaigns.map((camp) => {
-                      const asset = camp.assets[0];
-                      const isVideo = asset?.mimeType.startsWith("video/");
-                      return (
-                        <tr key={camp.id} className="hover:bg-slate-50/80 transition-colors">
-                          <td className="py-3 px-4">
-                            <span className="font-bold text-slate-900 block truncate max-w-xs">
-                              {camp.name}
-                            </span>
-                            <span className="text-slate-400 text-[11px]">Brand: {camp.brand}</span>
-                          </td>
-
-                          <td className="py-3 px-4 text-slate-700">
+                  <tbody className="divide-y divide-white/5">
+                    {campaigns.map((camp) => (
+                      <tr key={camp.id} className="hover:bg-white/[0.03] transition-colors">
+                        <td className="px-6 py-4">
+                          <Link
+                            href={`/ops/campaigns/${camp.id}`}
+                            className="font-heading font-bold text-[#ebebeb] hover:text-[#ccff00] text-sm block"
+                          >
+                            {camp.name}
+                          </Link>
+                          <span className="text-[10px] text-[#ebebeb]/40">ID: {camp.id.slice(0, 8)}...</span>
+                        </td>
+                        <td className="px-6 py-4 text-[#ebebeb]/70">
+                          <div className="font-semibold text-[#ebebeb]">{camp.brand}</div>
+                          <div className="text-[10px] text-[#ebebeb]/40">{camp.organization.name}</div>
+                        </td>
+                        <td className="px-6 py-4 text-[#ebebeb]/70">
+                          {camp.zone ? (
                             <div className="flex items-center space-x-1.5">
-                              <Building2 className="h-3.5 w-3.5 text-slate-400" />
-                              <span className="truncate max-w-[150px] font-medium">{camp.organization.name}</span>
+                              <MapPin className="h-3.5 w-3.5 text-[#ccff00] shrink-0" />
+                              <span>{camp.zone.name}</span>
                             </div>
-                          </td>
-
-                          <td className="py-3 px-4 text-slate-700">
-                            <div className="flex items-center space-x-1">
-                              <MapPin className="h-3.5 w-3.5 text-emerald-600" />
-                              <span className="font-medium">{camp.zone?.name || "TBD"}</span>
-                            </div>
-                          </td>
-
-                          <td className="py-3 px-4 text-slate-600">
-                            <div className="space-y-0.5">
-                              <div className="flex items-center space-x-1">
-                                <Calendar className="h-3 w-3 text-slate-400" />
-                                <span>{camp.startAt ? new Date(camp.startAt).toLocaleDateString() : "TBD"}</span>
-                              </div>
-                              <div className="flex items-center space-x-1 text-[11px] text-slate-400">
-                                <Clock className="h-3 w-3" />
-                                <span>
-                                  {camp.startAt
-                                    ? new Date(camp.startAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                                    : ""}
-                                </span>
+                          ) : (
+                            <span className="text-[#ebebeb]/30">Unassigned</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-[#ebebeb]/60">
+                          {camp.startAt ? (
+                            <div>
+                              <div>{new Date(camp.startAt).toLocaleDateString()}</div>
+                              <div className="text-[10px] text-[#ebebeb]/40">
+                                {new Date(camp.startAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                               </div>
                             </div>
-                          </td>
-
-                          <td className="py-3 px-4">
-                            {asset ? (
-                              <div className="flex items-center space-x-1.5 text-slate-600">
-                                {isVideo ? (
-                                  <Film className="h-3.5 w-3.5 text-indigo-600" />
-                                ) : (
-                                  <ImageIcon className="h-3.5 w-3.5 text-blue-600" />
-                                )}
-                                <span className="truncate max-w-[100px] text-[11px] font-mono">
-                                  {asset.mimeType.split("/")[1]?.toUpperCase()}
-                                </span>
-                              </div>
-                            ) : (
-                              <span className="text-slate-300 italic text-[11px]">No asset</span>
-                            )}
-                          </td>
-
-                          <td className="py-3 px-4 whitespace-nowrap">
-                            {getStatusBadge(camp.status)}
-                          </td>
-
-                          <td className="py-3 px-4 text-right whitespace-nowrap">
-                            <Link
-                              href={`/ops/campaigns/${camp.id}`}
-                              className="inline-flex items-center rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-500"
-                            >
-                              <Eye className="mr-1.5 h-3.5 w-3.5" />
-                              Review
-                            </Link>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                          ) : (
+                            "Flexible"
+                          )}
+                        </td>
+                        <td className="px-6 py-4">{getStatusBadge(camp.status)}</td>
+                        <td className="px-6 py-4 text-right">
+                          <Link
+                            href={`/ops/campaigns/${camp.id}`}
+                            className="inline-flex items-center rounded-full bg-[#ccff00] px-4 py-1.5 text-xs font-bold text-black hover:bg-white transition-colors"
+                          >
+                            <Eye className="mr-1.5 h-3.5 w-3.5" />
+                            Review Media
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
             </div>
           )}
-        </div>
-      </main>
+        </main>
+
+        {/* Footer */}
+        <footer className="relative z-30 px-6 sm:px-10 py-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-[#ebebeb]/40">
+          <div>© 2026 AERVY TECHNOLOGIES INC.</div>
+          <div className="flex gap-4 mt-2 sm:mt-0">
+            <Link href="/" className="hover:text-white">Home</Link>
+            <Link href="/ops/dashboard" className="hover:text-white">Dashboard</Link>
+            <Link href="/ops/zones" className="hover:text-white">Zones</Link>
+          </div>
+        </footer>
+
+      </div>
     </div>
   );
 }
