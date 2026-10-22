@@ -15,10 +15,6 @@ export default function HomePage() {
   return (
     <div className="min-h-screen w-full bg-[#000000] text-[#ebebeb] flex flex-col relative overflow-x-hidden selection:bg-[#ccff00] selection:text-black font-sans">
       
-      {/* Background Grid Pattern & Noise Spanning Full Viewport */}
-      <div className="fixed inset-0 bg-grid-pattern pointer-events-none opacity-80 z-0" />
-      <div className="fixed inset-0 bg-noise pointer-events-none mix-blend-overlay z-0" />
-
       {/* Atmospheric Glow Spheres */}
       <div className="absolute -top-40 -left-40 w-[600px] h-[600px] glow-sphere-lime pointer-events-none z-0" />
       <div className="absolute top-[35%] -right-40 w-[700px] h-[700px] glow-sphere-emerald pointer-events-none z-0" />

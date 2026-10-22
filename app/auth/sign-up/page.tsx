@@ -25,9 +25,6 @@ export default function SignUpPage() {
   return (
     <div className="min-h-screen w-full bg-[#000000] text-[#ebebeb] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-sans selection:bg-[#ccff00] selection:text-black">
       
-      {/* Decorative Grid & Noise */}
-      <div className="fixed inset-0 bg-grid-pattern pointer-events-none opacity-80 z-0" />
-      <div className="fixed inset-0 bg-noise pointer-events-none mix-blend-overlay z-0" />
       <div className="absolute top-1/4 -left-40 w-[600px] h-[600px] glow-sphere-lime pointer-events-none z-0" />
       <div className="absolute bottom-10 -right-40 w-[600px] h-[600px] glow-sphere-emerald pointer-events-none z-0" />
 

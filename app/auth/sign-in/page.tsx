@@ -39,9 +39,6 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen bg-[#000000] p-4 sm:p-6 flex flex-col justify-center items-center text-[#ebebeb] selection:bg-[#ccff00] selection:text-black font-sans relative overflow-hidden">
-      {/* Decorative Grid & Noise */}
-      <div className="absolute inset-0 bg-grid-pattern pointer-events-none opacity-80" />
-      <div className="absolute inset-0 bg-noise pointer-events-none mix-blend-overlay" />
       <div className="absolute top-1/4 -left-40 w-[500px] h-[500px] glow-sphere-lime pointer-events-none" />
       <div className="absolute bottom-10 -right-40 w-[500px] h-[500px] glow-sphere-emerald pointer-events-none" />
 

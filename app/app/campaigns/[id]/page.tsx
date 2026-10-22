@@ -238,9 +238,6 @@ export default function CampaignTrackerDetailPage() {
   return (
     <div className="min-h-screen w-full bg-[#000000] text-[#ebebeb] flex flex-col relative overflow-x-hidden selection:bg-[#ccff00] selection:text-black font-sans pb-16">
       
-      {/* Background Grid & Noise */}
-      <div className="fixed inset-0 bg-grid-pattern pointer-events-none opacity-80 z-0" />
-      <div className="fixed inset-0 bg-noise pointer-events-none mix-blend-overlay z-0" />
       <div className="absolute top-0 right-10 w-[600px] h-[600px] glow-sphere-lime pointer-events-none z-0" />
 
       {/* Standard Sticky Header */}
